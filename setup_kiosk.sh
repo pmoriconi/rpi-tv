@@ -43,6 +43,8 @@ if ! grep -q "disable_splash=1" $CONFIG_PATH; then
   echo -e "\n[All]\ndisable_splash=1" | sudo tee -a $CONFIG_PATH > /dev/null
 fi
 
+cp /home/selec/rpi-tv/splash.png /home/selec/splash.png
+
 # 6) Reemplazar el archivo /usr/share/plymouth/themes/pix/splash.png con /home/selec/splash.png
 PLYMOUTH_SPLASH_PATH="/usr/share/plymouth/themes/pix/splash.png"
 if [ -f "/home/selec/splash.png" ]; then
