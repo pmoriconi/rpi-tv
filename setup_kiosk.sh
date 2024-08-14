@@ -23,7 +23,7 @@ chown selec:selec $KIOSK_SCRIPT_PATH
 # 3) Editar .bashrc del home de usuario selec
 BASHRC_PATH="/home/selec/.bashrc"
 if ! grep -q "xinit /home/selec/kiosk -- vt\$(fgconsole)" $BASHRC_PATH; then
-  echo "xinit /home/selec/kiosk -- vt\$(fgconsole)" >> $BASHRC_PATH
+  echo "xinit /home/selec/kiosk -- vt\$(fgconsole) >/dev/null 2>&1" >> $BASHRC_PATH
 fi
 
 # 4) Editar el archivo /boot/firmware/cmdline.txt
@@ -55,5 +55,8 @@ else
 fi
 
 # 7) Actualizar initramfs y reiniciar
+sudo truncate -s 0 /etc/issue
+sudo truncate -s 0 /etc/issue.net
+sudo truncate -s 0 /etc/motd
 sudo update-initramfs -u
 sudo reboot
