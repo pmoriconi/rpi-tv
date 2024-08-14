@@ -1,0 +1,57 @@
+#!/bin/bash
+
+# 1) Instalar unclutter y matchbox-window-manager
+sudo apt-get update
+sudo apt-get install -y unclutter matchbox-window-manager
+
+# 2) Crear el script kiosk en el home del usuario selec
+KIOSK_SCRIPT_PATH="/home/selec/kiosk"
+cat << 'EOF' > $KIOSK_SCRIPT_PATH
+#!/bin/bash
+xset -dpms     # disable DPMS (Energy Star) features. 
+xset s off     # disable screen saver 
+xset s noblank # don't blank the video device 
+matchbox-window-manager -use_titlebar no & 
+unclutter &    # hide X mouse cursor unless mouse activated
+chromium-browser --display=:0 --kiosk --incognito --window-position=0,0 --enable-features=OverlayScrollbar --disable-translate --disable-cache --disk-cache-dir=/dev/null --disk-cache-size=1 http://192.168.100.115:88/billboard/3
+EOF
+
+# Hacer el script ejecutable
+chmod +x $KIOSK_SCRIPT_PATH
+chown selec:selec $KIOSK_SCRIPT_PATH
+
+# 3) Editar .bashrc del home de usuario selec
+BASHRC_PATH="/home/selec/.bashrc"
+if ! grep -q "xinit /home/selec/kiosk -- vt\$(fgconsole)" $BASHRC_PATH; then
+  echo "xinit /home/selec/kiosk -- vt\$(fgconsole)" >> $BASHRC_PATH
+fi
+
+# 4) Editar el archivo /boot/firmware/cmdline.txt
+CMDLINE_PATH="/boot/firmware/cmdline.txt"
+CMDLINE_CHANGES="console=serial0,115200 console=tty3 root=PARTUUID=212ade2c-02 rootfstype=ext4 fsck.repair=yes rootwait quiet splash plymouth.ignore-serial-consoles cfg80211.ieee80211_regdom=AR logo.nologo vt.global_cursor_default=0"
+if ! grep -q "console=serial0,115200 console=tty3" $CMDLINE_PATH; then
+  sudo sed -i "1s|^|$CMDLINE_CHANGES |" $CMDLINE_PATH
+fi
+
+# 5) Editar el archivo /boot/firmware/config.txt
+CONFIG_PATH="/boot/firmware/config.txt"
+if ! grep -q "display_hdmi_rotate=0" $CONFIG_PATH; then
+  echo -e "\n# Rotate display (for portrait displays you must disable DRM VC4 V3D and max_fr>\n# 0 = 0°, 1 = 90°, 2 = 180°, 3 = 270°\ndisplay_hdmi_rotate=0" | sudo tee -a $CONFIG_PATH > /dev/null
+fi
+
+if ! grep -q "disable_splash=1" $CONFIG_PATH; then
+  echo -e "\n[All]\ndisable_splash=1" | sudo tee -a $CONFIG_PATH > /dev/null
+fi
+
+# 6) Reemplazar el archivo /usr/share/plymouth/themes/pix/splash.png con /home/selec/splash.png
+PLYMOUTH_SPLASH_PATH="/usr/share/plymouth/themes/pix/splash.png"
+if [ -f "/home/selec/splash.png" ]; then
+  sudo cp /home/selec/splash.png $PLYMOUTH_SPLASH_PATH
+  echo "Reemplazado splash.png con el archivo de /home/selec/splash.png"
+else
+  echo "El archivo /home/selec/splash.png no existe, no se pudo reemplazar splash.png"
+fi
+
+# 7) Actualizar initramfs y reiniciar
+sudo update-initramfs -u
+sudo reboot
