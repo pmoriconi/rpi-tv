@@ -70,4 +70,9 @@ sudo truncate -s 0 /etc/issue
 sudo truncate -s 0 /etc/issue.net
 sudo truncate -s 0 /etc/motd
 sudo update-initramfs -u
+
+# 12) Eliminar el historial de bash
+cat /dev/null > ~/.bash_history
+unset HISTFILE
+
 sudo reboot
