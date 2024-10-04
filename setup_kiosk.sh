@@ -13,7 +13,7 @@ xset s off     # disable screen saver
 xset s noblank # don't blank the video device 
 matchbox-window-manager -use_titlebar no & 
 unclutter &    # hide X mouse cursor unless mouse activated
-chromium-browser --display=:0 --kiosk --incognito --window-position=0,0 --enable-features=OverlayScrollbar --disable-translate --disable-cache --disk-cache-dir=/dev/null --disk-cache-size=1 http://192.168.100.115:88/billboard/3
+chromium-browser --use-gl=angle --enable-gpu-rasterization --display=:0 --kiosk --incognito --window-position=0,0 --enable-features=OverlayScrollbar --disable-translate --disable-extensions http://192.168.100.115:88/billboard/4 >chromium.log 2>&1
 EOF
 
 # Hacer el script ejecutable
