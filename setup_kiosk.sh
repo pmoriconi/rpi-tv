@@ -4,26 +4,14 @@
 sudo apt-get update
 sudo apt-get install -y unclutter matchbox-window-manager
 
-# 2) Crear el script kiosk en el home del usuario selec
-KIOSK_SCRIPT_PATH="/home/selec/kiosk"
-cat << 'EOF' > $KIOSK_SCRIPT_PATH
-#!/bin/bash
-xset -dpms     # disable DPMS (Energy Star) features. 
-xset s off     # disable screen saver 
-xset s noblank # don't blank the video device 
-matchbox-window-manager -use_titlebar no & 
-unclutter &    # hide X mouse cursor unless mouse activated
-chromium-browser --use-gl=angle --enable-gpu-rasterization --display=:0 --kiosk --incognito --window-position=0,0 --enable-features=OverlayScrollbar --disable-translate --disable-extensions http://192.168.100.115:88/billboard/4 >chromium.log 2>&1
-EOF
-
-# Hacer el script ejecutable
-chmod +x $KIOSK_SCRIPT_PATH
-chown selec:selec $KIOSK_SCRIPT_PATH
+# 2) Copiar ejecutable y archivo de configuración 
+cp kiosk-bin /home/selec/kiosk-bin
+cp kiosk.conf /home/selec/kiosk.conf
 
 # 3) Editar .bashrc del home de usuario selec
 BASHRC_PATH="/home/selec/.bashrc"
-if ! grep -q "xinit /home/selec/kiosk -- vt\$(fgconsole)" $BASHRC_PATH; then
-  echo "xinit /home/selec/kiosk -- vt\$(fgconsole) >/dev/null 2>&1" >> $BASHRC_PATH
+if ! grep -q "xinit /home/selec/kiosk-bin -- vt\$(fgconsole)" $BASHRC_PATH; then
+  echo "xinit /home/selec/kiosk-bin -- vt\$(fgconsole) >/dev/null 2>&1" >> $BASHRC_PATH
 fi
 
 # 4) Editar el archivo /boot/firmware/cmdline.txt
