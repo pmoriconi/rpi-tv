@@ -15,6 +15,11 @@ chmod +x /home/selec/kiosk-bin
 # 4) Editar .bashrc del home de usuario selec
 BASHRC_PATH="/home/selec/.bashrc"
 
+# Añadir la línea para ejecutar xinit si no está presente
+if ! grep -q "xinit /home/selec/kiosk-bin -- vt\$(fgconsole)" $BASHRC_PATH; then
+  echo "xinit /home/selec/kiosk-bin -- vt\$(fgconsole) >/dev/null 2>&1" >> $BASHRC_PATH
+fi
+
 # Añadir la línea para eliminar la carpeta /home/selec/rpi-tv si existe
 if ! grep -q "if [ -d /home/selec/rpi-tv ]; then" $BASHRC_PATH; then
   echo -e "\n# Verificar y eliminar la carpeta /home/selec/rpi-tv si existe" >> $BASHRC_PATH
