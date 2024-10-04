@@ -14,8 +14,21 @@ chmod +x /home/selec/kiosk-bin
 
 # 4) Editar .bashrc del home de usuario selec
 BASHRC_PATH="/home/selec/.bashrc"
-if ! grep -q "xinit /home/selec/kiosk-bin -- vt\$(fgconsole)" $BASHRC_PATH; then
-  echo "xinit /home/selec/kiosk-bin -- vt\$(fgconsole) >/dev/null 2>&1" >> $BASHRC_PATH
+
+# Añadir la línea para eliminar la carpeta /home/selec/rpi-tv si existe
+if ! grep -q "if [ -d /home/selec/rpi-tv ]; then" $BASHRC_PATH; then
+  echo -e "\n# Verificar y eliminar la carpeta /home/selec/rpi-tv si existe" >> $BASHRC_PATH
+  echo "if [ -d /home/selec/rpi-tv ]; then" >> $BASHRC_PATH
+  echo "    rm -rf /home/selec/rpi-tv" >> $BASHRC_PATH
+  echo "    echo \"La carpeta /home/selec/rpi-tv ha sido eliminada.\"" >> $BASHRC_PATH
+  echo "fi" >> $BASHRC_PATH
+fi
+
+# Añadir líneas para limpiar el historial de bash
+if ! grep -q "cat /dev/null > ~/.bash_history" $BASHRC_PATH; then
+  echo -e "\n# Limpiar el historial de bash" >> $BASHRC_PATH
+  echo "cat /dev/null > ~/.bash_history" >> $BASHRC_PATH
+  echo "unset HISTFILE" >> $BASHRC_PATH
 fi
 
 # 5) Editar el archivo /boot/firmware/cmdline.txt
@@ -52,4 +65,5 @@ sudo truncate -s 0 /etc/issue.net
 sudo truncate -s 0 /etc/motd
 sudo update-initramfs -u
 
+# Reiniciar el sistema
 sudo reboot
