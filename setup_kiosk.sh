@@ -10,6 +10,7 @@ echo 'URL="http://192.168.100.115:88/billboard/6"' > $KIOSK_CONF_PATH
 
 # 3) Copiar ejecutable
 cp kiosk-bin /home/selec/kiosk-bin
+chmod +x /home/selec/kiosk-bin
 
 # 4) Editar .bashrc del home de usuario selec
 BASHRC_PATH="/home/selec/.bashrc"
@@ -45,34 +46,10 @@ else
   echo "El archivo /home/selec/splash.png no existe, no se pudo reemplazar splash.png"
 fi
 
-# 8) Crear un script para verificar y eliminar la carpeta /home/selec/rpi-tv
-INIT_SCRIPT_PATH="/etc/init.d/check_rpi_tv"
-sudo bash -c "cat > $INIT_SCRIPT_PATH" << 'EOF'
-#!/bin/bash
-
-# Verificar y eliminar la carpeta /home/selec/rpi-tv si existe
-if [ -d /home/selec/rpi-tv ]; then
-  rm -rf /home/selec/rpi-tv
-  echo "La carpeta /home/selec/rpi-tv ha sido eliminada."
-else
-  echo "La carpeta /home/selec/rpi-tv no existe."
-fi
-EOF
-
-# 9) Hacer el script ejecutable
-sudo chmod +x $INIT_SCRIPT_PATH
-
-# 10) Agregar el script al inicio del sistema
-sudo update-rc.d check_rpi_tv defaults
-
-# 11) Actualizar initramfs y reiniciar
+# 8) Actualizar initramfs y reiniciar
 sudo truncate -s 0 /etc/issue
 sudo truncate -s 0 /etc/issue.net
 sudo truncate -s 0 /etc/motd
 sudo update-initramfs -u
-
-# 12) Eliminar el historial de bash
-cat /dev/null > ~/.bash_history
-unset HISTFILE
 
 sudo reboot
